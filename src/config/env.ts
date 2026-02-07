@@ -1,0 +1,19 @@
+/**
+ * Environment configuration and secure exports
+ */
+export const ENV = {
+    USDA_API_KEY: process.env.EXPO_PUBLIC_USDA_API_KEY || 'DEMO_KEY',
+    USDA_API_BASE: 'https://api.nal.usda.gov/fdc/v1',
+
+    // RevenueCat API Keys (Platform-specific)
+    REVENUECAT_IOS_API_KEY: process.env.EXPO_PUBLIC_APPLE_REVENUECAT_API_KEY || '',
+    REVENUECAT_ANDROID_API_KEY: process.env.EXPO_PUBLIC_ANDROID_REVENUECAT_API_KEY || '',
+
+    // Firebase Config
+    FIREBASE_API_KEY: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+    FIREBASE_AUTH_DOMAIN: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    FIREBASE_PROJECT_ID: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+    FIREBASE_STORAGE_BUCKET: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    FIREBASE_MESSAGING_SENDER_ID: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    FIREBASE_APP_ID: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+};

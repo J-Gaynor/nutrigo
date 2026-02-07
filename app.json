@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "NutritionApp",
-    "slug": "NutritionApp",
-    "version": "1.0.0",
+    "name": "Stamina",
+    "slug": "stamina",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -10,21 +10,67 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#10B981"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/372abe93-aeb4-497f-b628-f26363918b2f",
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.stamina.nutrition.app",
+      "buildNumber": "12",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs camera access to scan nutrition labels",
+        "NSPhotoLibraryUsageDescription": "This app needs photo library access to select nutrition label images",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.stamina.nutrition.app",
+      "versionCode": 13,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera to scan nutrition labels"
+        }
+      ],
+      "rn-mlkit-ocr",
+      "expo-web-browser",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "16.0"
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "372abe93-aeb4-497f-b628-f26363918b2f"
+      }
     }
   }
 }
