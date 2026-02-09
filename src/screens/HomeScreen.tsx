@@ -544,290 +544,293 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => 
     };
 
     return (
-        <View style={styles.mainContainer}>
-            <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
+        <>
+            <SafeAreaView style={{ flex: 0, backgroundColor: theme.colors.primary }} />
+            <View style={{ flex: 1, backgroundColor: theme.colors.surface }}>
+                <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+                    <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
 
-            <SafeAreaView style={styles.safeArea}>
-                <ScrollView
-                    style={styles.scrollView}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fff" />
-                    }
-                    contentContainerStyle={styles.contentContainer}
-                >
-                    {/* Header Background within ScrollView */}
-                    <View style={styles.scrollingHeaderBackground} />
+                    <ScrollView
+                        style={styles.scrollView}
+                        refreshControl={
+                            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fff" />
+                        }
+                        contentContainerStyle={styles.contentContainer}
+                    >
+                        {/* Header Background within ScrollView */}
+                        <View style={styles.scrollingHeaderBackground} />
 
-                    {/* Header Section */}
-                    <View style={styles.header}>
-                        <View>
-                            <Text style={styles.greeting}>{getGreeting()},</Text>
-                            <Text style={styles.userName}>{userProfile.name}</Text>
+                        {/* Header Section */}
+                        <View style={styles.header}>
+                            <View>
+                                <Text style={styles.greeting}>{getGreeting()},</Text>
+                                <Text style={styles.userName}>{userProfile.name}</Text>
+                            </View>
+                            <TouchableOpacity
+                                style={styles.profileButton}
+                                onPress={() => navigation.navigate('Profile')}
+                            >
+                                <Text style={styles.profileButtonText}>
+                                    {userProfile.name.charAt(0)}
+                                </Text>
+                            </TouchableOpacity>
                         </View>
+
+                        {/* Date Navigation */}
+                        <View style={styles.dateNavContainer}>
+                            {(() => {
+                                const today = getTodayDate();
+                                const minDateObj = new Date(today);
+                                minDateObj.setDate(minDateObj.getDate() - 7);
+                                const minDate = minDateObj.toISOString().split('T')[0];
+                                const isMinDate = selectedDate <= minDate;
+
+                                return (
+                                    <TouchableOpacity
+                                        style={[styles.dateNavButton, isMinDate && styles.disabledButton]}
+                                        onPress={() => changeDate(-1)}
+                                        disabled={isMinDate}
+                                    >
+                                        <Text style={[styles.dateNavArrow, isMinDate && styles.disabledText]}>‹</Text>
+                                    </TouchableOpacity>
+                                );
+                            })()}
+
+                            <View style={styles.dateDisplay}>
+                                <Text style={styles.dateText}>{getDisplayDate()}</Text>
+                            </View>
+
+                            <TouchableOpacity
+                                style={[styles.dateNavButton, selectedDate === getTodayDate() && styles.disabledButton]}
+                                onPress={() => changeDate(1)}
+                                disabled={selectedDate === getTodayDate()}
+                            >
+                                <Text style={[styles.dateNavArrow, selectedDate === getTodayDate() && styles.disabledText]}>›</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Main Content Areas */}
+                        {activeTab === 'nutrition' ? (
+                            <>
+                                {/* Calorie & Macro Summary Card */}
+                                <View style={styles.summaryCard}>
+                                    <View style={styles.calorieRow}>
+                                        <View>
+                                            <Text style={styles.calorieLabel}>Calories Remaining</Text>
+                                            <Text style={styles.calorieValue}>
+                                                {Math.round(caloriesRemaining)}
+                                                <Text style={styles.calorieUnit}> kcal</Text>
+                                            </Text>
+                                        </View>
+
+                                    </View>
+
+                                    <View style={styles.progressBarContainer}>
+                                        <View style={[styles.progressBar, { width: `${progress * 100}%` }]} />
+                                    </View>
+
+                                    <View style={styles.progressStats}>
+                                        <Text style={styles.eatenText}>{Math.round(dailyLog.totals.calories)} eaten</Text>
+                                        <Text style={styles.percentageText}>{Math.round(progress * 100)}%</Text>
+                                    </View>
+
+                                    {/* Consolidated Macros */}
+                                    <View style={styles.miniMacrosContainer}>
+                                        <View style={styles.miniMacroItem}>
+                                            <Text style={[styles.miniMacroLabel, { color: theme.colors.secondary }]}>Protein</Text>
+                                            <Text style={styles.miniMacroValue}>{Math.round(dailyLog.totals.protein)} / {Math.round(userGoals.dailyProtein)}g</Text>
+                                            <View style={styles.miniProgressBar}>
+                                                <View style={{ width: `${Math.min(100, (dailyLog.totals.protein / userGoals.dailyProtein) * 100)}%`, backgroundColor: theme.colors.secondary, height: '100%' }} />
+                                            </View>
+                                        </View>
+                                        <View style={styles.miniMacroItem}>
+                                            <Text style={[styles.miniMacroLabel, { color: theme.colors.success }]}>Carbs</Text>
+                                            <Text style={styles.miniMacroValue}>{Math.round(dailyLog.totals.carbs)} / {Math.round(userGoals.dailyCarbs)}g</Text>
+                                            <View style={styles.miniProgressBar}>
+                                                <View style={{ width: `${Math.min(100, (dailyLog.totals.carbs / userGoals.dailyCarbs) * 100)}%`, backgroundColor: theme.colors.success, height: '100%' }} />
+                                            </View>
+                                        </View>
+                                        <View style={styles.miniMacroItem}>
+                                            <Text style={[styles.miniMacroLabel, { color: theme.colors.warning }]}>Fats</Text>
+                                            <Text style={styles.miniMacroValue}>{Math.round(dailyLog.totals.fats)} / {Math.round(userGoals.dailyFats)}g</Text>
+                                            <View style={styles.miniProgressBar}>
+                                                <View style={{ width: `${Math.min(100, (dailyLog.totals.fats / userGoals.dailyFats) * 100)}%`, backgroundColor: theme.colors.warning, height: '100%' }} />
+                                            </View>
+                                        </View>
+                                    </View>
+                                </View>
+
+                                {/* Weight Update Bar */}
+                                <TouchableOpacity style={styles.weightUpdateBar} onPress={() => setShowWeightModal(true)}>
+                                    <View style={styles.weightInfo}>
+                                        <Text style={styles.weightLabel}>Current Weight</Text>
+                                        <Text style={styles.weightValue}>{userProfile.weight} kg</Text>
+
+                                        {/* Goal Proximity Badge */}
+                                        {userProfile.goal === 'lose' && (
+                                            <>
+                                                {userProfile.weight > userProfile.targetWeight ? (
+                                                    <View style={styles.weightGoalBadge}>
+                                                        <Text style={styles.weightGoalText}>
+                                                            {(userProfile.weight - userProfile.targetWeight).toFixed(1)} kg to lose
+                                                        </Text>
+                                                    </View>
+                                                ) : (
+                                                    <View style={styles.weightGoalBadge}>
+                                                        <Text style={[styles.weightGoalText, { color: theme.colors.primary }]}>Goal Reached! 🎉</Text>
+                                                    </View>
+                                                )}
+                                            </>
+                                        )}
+
+                                        {userProfile.goal === 'gain' && (
+                                            <>
+                                                {userProfile.weight < userProfile.targetWeight ? (
+                                                    <View style={styles.weightGoalBadge}>
+                                                        <Text style={styles.weightGoalText}>
+                                                            {(userProfile.targetWeight - userProfile.weight).toFixed(1)} kg to gain
+                                                        </Text>
+                                                    </View>
+                                                ) : (
+                                                    <View style={styles.weightGoalBadge}>
+                                                        <Text style={[styles.weightGoalText, { color: theme.colors.primary }]}>Goal Reached! 🎉</Text>
+                                                    </View>
+                                                )}
+                                            </>
+                                        )}
+
+                                        {userProfile.goal === 'maintain' && (
+                                            <View style={styles.weightGoalBadge}>
+                                                <Text style={styles.weightGoalText}>Maintenance Goal</Text>
+                                            </View>
+                                        )}
+                                    </View>
+                                    <Text style={styles.weightActionText}>Update</Text>
+                                </TouchableOpacity>
+
+                                {/* Meal Sections */}
+                                <View style={styles.mealsContainer}>
+                                    {mealSections.map((sectionName) => {
+                                        const entries = getEntriesForMeal(sectionName);
+                                        const cals = getMealCalories(entries);
+                                        const macros = getMealMacros(entries);
+
+                                        // Add Meal Button goes ABOVE Snacks & Drinks
+                                        if (sectionName === 'Snacks & Drinks') {
+                                            return (
+                                                <View key={sectionName}>
+                                                    <TouchableOpacity style={styles.addMealButton} onPress={handleAddMealSection}>
+                                                        <Text style={styles.addMealButtonText}>+ Add Meal</Text>
+                                                    </TouchableOpacity>
+
+                                                    <MealSection
+                                                        title={sectionName}
+                                                        entries={entries}
+                                                        calories={cals}
+                                                        macros={macros}
+                                                        onAddFood={() => openAddFoodModal(sectionName)}
+                                                        onRepeatLast={availableRepeats[sectionName] ? () => handleRepeatLast(sectionName) : undefined}
+                                                        lastMealDate={lastMealsData[sectionName]?.date || null}
+                                                        lastMealCount={lastMealsData[sectionName]?.count || 0}
+                                                        isPremium={isPremium}
+                                                        onRemoveEntry={handleRemoveEntry}
+                                                        isRemovable={false} // Snacks always stays
+                                                        onSaveMeal={() => handleSaveMeal(sectionName)}
+                                                    />
+                                                </View>
+                                            );
+                                        }
+
+                                        return (
+                                            <MealSection
+                                                key={sectionName}
+                                                title={sectionName}
+                                                entries={entries}
+                                                calories={cals}
+                                                macros={macros}
+                                                onAddFood={() => openAddFoodModal(sectionName)}
+                                                onRepeatLast={availableRepeats[sectionName] ? () => handleRepeatLast(sectionName) : undefined}
+                                                lastMealDate={lastMealsData[sectionName]?.date || null}
+                                                lastMealCount={lastMealsData[sectionName]?.count || 0}
+                                                isPremium={isPremium}
+                                                onRemoveEntry={handleRemoveEntry}
+                                                onDeleteSection={() => handleDeleteMealSection(sectionName)}
+                                                isRemovable={true}
+                                                onSaveMeal={() => handleSaveMeal(sectionName)}
+                                            />
+                                        );
+                                    })}
+                                </View>
+
+                                {/* Exercise Section (Also visible in Nutrition for calorie context) */}
+                                <View style={styles.mealsContainer}>
+                                    <ExerciseSection
+                                        exercises={dailyLog.exercises || []}
+                                        onAddExercise={() => navigation.navigate('AddExercise', { date: selectedDate })}
+                                        onRemoveExercise={handleRemoveExercise}
+                                    />
+                                </View>
+                            </>
+                        ) : (
+                            <WorkoutView
+                                dailyLog={dailyLog}
+                                savedRoutines={savedRoutines}
+                                onAddWorkout={() => navigation.navigate('AddWorkout', { date: selectedDate })}
+                                onRemoveWorkout={handleRemoveWorkout}
+                                onPressWorkout={(id, isRoutine) => {
+                                    // Check if it's a routine (either flag or starts with 'hist') or a logged workout
+                                    if (isRoutine || id.startsWith('hist')) {
+                                        // Start new from routine
+                                        const routine = savedRoutines.find(r => r.id === id);
+                                        if (routine) {
+                                            navigation.push('WorkoutExecute', {
+                                                date: selectedDate,
+                                                routine: routine
+                                            });
+                                        }
+                                    } else {
+                                        // View/Resume existing workout
+                                        navigation.navigate('WorkoutExecute', { date: selectedDate, workoutId: id });
+                                    }
+                                }}
+                            />
+                        )}
+                    </ScrollView>
+
+                    {/* Bottom View Switcher */}
+                    <View style={styles.bottomTabSwitcher}>
                         <TouchableOpacity
-                            style={styles.profileButton}
-                            onPress={() => navigation.navigate('Profile')}
+                            style={[styles.tabButton, activeTab === 'nutrition' && styles.tabButtonActive]}
+                            onPress={() => {
+                                setActiveTab('nutrition');
+                                navigation.setParams({ activeTab: 'nutrition' });
+                            }}
                         >
-                            <Text style={styles.profileButtonText}>
-                                {userProfile.name.charAt(0)}
+                            <Text style={styles.tabIcon}>🥗</Text>
+                            <Text style={[styles.tabLabel, activeTab === 'nutrition' && styles.tabLabelActive]}>
+                                Nutrition
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.tabButton, activeTab === 'workout' && styles.tabButtonActive]}
+                            onPress={() => {
+                                setActiveTab('workout');
+                                navigation.setParams({ activeTab: 'workout' });
+                            }}
+                        >
+                            <Text style={styles.tabIcon}>💪</Text>
+                            <Text style={[styles.tabLabel, activeTab === 'workout' && styles.tabLabelActive]}>
+                                Workout
                             </Text>
                         </TouchableOpacity>
                     </View>
-
-                    {/* Date Navigation */}
-                    <View style={styles.dateNavContainer}>
-                        {(() => {
-                            const today = getTodayDate();
-                            const minDateObj = new Date(today);
-                            minDateObj.setDate(minDateObj.getDate() - 7);
-                            const minDate = minDateObj.toISOString().split('T')[0];
-                            const isMinDate = selectedDate <= minDate;
-
-                            return (
-                                <TouchableOpacity
-                                    style={[styles.dateNavButton, isMinDate && styles.disabledButton]}
-                                    onPress={() => changeDate(-1)}
-                                    disabled={isMinDate}
-                                >
-                                    <Text style={[styles.dateNavArrow, isMinDate && styles.disabledText]}>‹</Text>
-                                </TouchableOpacity>
-                            );
-                        })()}
-
-                        <View style={styles.dateDisplay}>
-                            <Text style={styles.dateText}>{getDisplayDate()}</Text>
-                        </View>
-
-                        <TouchableOpacity
-                            style={[styles.dateNavButton, selectedDate === getTodayDate() && styles.disabledButton]}
-                            onPress={() => changeDate(1)}
-                            disabled={selectedDate === getTodayDate()}
-                        >
-                            <Text style={[styles.dateNavArrow, selectedDate === getTodayDate() && styles.disabledText]}>›</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* Main Content Areas */}
-                    {activeTab === 'nutrition' ? (
-                        <>
-                            {/* Calorie & Macro Summary Card */}
-                            <View style={styles.summaryCard}>
-                                <View style={styles.calorieRow}>
-                                    <View>
-                                        <Text style={styles.calorieLabel}>Calories Remaining</Text>
-                                        <Text style={styles.calorieValue}>
-                                            {Math.round(caloriesRemaining)}
-                                            <Text style={styles.calorieUnit}> kcal</Text>
-                                        </Text>
-                                    </View>
-
-                                </View>
-
-                                <View style={styles.progressBarContainer}>
-                                    <View style={[styles.progressBar, { width: `${progress * 100}%` }]} />
-                                </View>
-
-                                <View style={styles.progressStats}>
-                                    <Text style={styles.eatenText}>{Math.round(dailyLog.totals.calories)} eaten</Text>
-                                    <Text style={styles.percentageText}>{Math.round(progress * 100)}%</Text>
-                                </View>
-
-                                {/* Consolidated Macros */}
-                                <View style={styles.miniMacrosContainer}>
-                                    <View style={styles.miniMacroItem}>
-                                        <Text style={[styles.miniMacroLabel, { color: theme.colors.secondary }]}>Protein</Text>
-                                        <Text style={styles.miniMacroValue}>{Math.round(dailyLog.totals.protein)} / {Math.round(userGoals.dailyProtein)}g</Text>
-                                        <View style={styles.miniProgressBar}>
-                                            <View style={{ width: `${Math.min(100, (dailyLog.totals.protein / userGoals.dailyProtein) * 100)}%`, backgroundColor: theme.colors.secondary, height: '100%' }} />
-                                        </View>
-                                    </View>
-                                    <View style={styles.miniMacroItem}>
-                                        <Text style={[styles.miniMacroLabel, { color: theme.colors.success }]}>Carbs</Text>
-                                        <Text style={styles.miniMacroValue}>{Math.round(dailyLog.totals.carbs)} / {Math.round(userGoals.dailyCarbs)}g</Text>
-                                        <View style={styles.miniProgressBar}>
-                                            <View style={{ width: `${Math.min(100, (dailyLog.totals.carbs / userGoals.dailyCarbs) * 100)}%`, backgroundColor: theme.colors.success, height: '100%' }} />
-                                        </View>
-                                    </View>
-                                    <View style={styles.miniMacroItem}>
-                                        <Text style={[styles.miniMacroLabel, { color: theme.colors.warning }]}>Fats</Text>
-                                        <Text style={styles.miniMacroValue}>{Math.round(dailyLog.totals.fats)} / {Math.round(userGoals.dailyFats)}g</Text>
-                                        <View style={styles.miniProgressBar}>
-                                            <View style={{ width: `${Math.min(100, (dailyLog.totals.fats / userGoals.dailyFats) * 100)}%`, backgroundColor: theme.colors.warning, height: '100%' }} />
-                                        </View>
-                                    </View>
-                                </View>
-                            </View>
-
-                            {/* Weight Update Bar */}
-                            <TouchableOpacity style={styles.weightUpdateBar} onPress={() => setShowWeightModal(true)}>
-                                <View style={styles.weightInfo}>
-                                    <Text style={styles.weightLabel}>Current Weight</Text>
-                                    <Text style={styles.weightValue}>{userProfile.weight} kg</Text>
-
-                                    {/* Goal Proximity Badge */}
-                                    {userProfile.goal === 'lose' && (
-                                        <>
-                                            {userProfile.weight > userProfile.targetWeight ? (
-                                                <View style={styles.weightGoalBadge}>
-                                                    <Text style={styles.weightGoalText}>
-                                                        {(userProfile.weight - userProfile.targetWeight).toFixed(1)} kg to lose
-                                                    </Text>
-                                                </View>
-                                            ) : (
-                                                <View style={styles.weightGoalBadge}>
-                                                    <Text style={[styles.weightGoalText, { color: theme.colors.primary }]}>Goal Reached! 🎉</Text>
-                                                </View>
-                                            )}
-                                        </>
-                                    )}
-
-                                    {userProfile.goal === 'gain' && (
-                                        <>
-                                            {userProfile.weight < userProfile.targetWeight ? (
-                                                <View style={styles.weightGoalBadge}>
-                                                    <Text style={styles.weightGoalText}>
-                                                        {(userProfile.targetWeight - userProfile.weight).toFixed(1)} kg to gain
-                                                    </Text>
-                                                </View>
-                                            ) : (
-                                                <View style={styles.weightGoalBadge}>
-                                                    <Text style={[styles.weightGoalText, { color: theme.colors.primary }]}>Goal Reached! 🎉</Text>
-                                                </View>
-                                            )}
-                                        </>
-                                    )}
-
-                                    {userProfile.goal === 'maintain' && (
-                                        <View style={styles.weightGoalBadge}>
-                                            <Text style={styles.weightGoalText}>Maintenance Goal</Text>
-                                        </View>
-                                    )}
-                                </View>
-                                <Text style={styles.weightActionText}>Update</Text>
-                            </TouchableOpacity>
-
-                            {/* Meal Sections */}
-                            <View style={styles.mealsContainer}>
-                                {mealSections.map((sectionName) => {
-                                    const entries = getEntriesForMeal(sectionName);
-                                    const cals = getMealCalories(entries);
-                                    const macros = getMealMacros(entries);
-
-                                    // Add Meal Button goes ABOVE Snacks & Drinks
-                                    if (sectionName === 'Snacks & Drinks') {
-                                        return (
-                                            <View key={sectionName}>
-                                                <TouchableOpacity style={styles.addMealButton} onPress={handleAddMealSection}>
-                                                    <Text style={styles.addMealButtonText}>+ Add Meal</Text>
-                                                </TouchableOpacity>
-
-                                                <MealSection
-                                                    title={sectionName}
-                                                    entries={entries}
-                                                    calories={cals}
-                                                    macros={macros}
-                                                    onAddFood={() => openAddFoodModal(sectionName)}
-                                                    onRepeatLast={availableRepeats[sectionName] ? () => handleRepeatLast(sectionName) : undefined}
-                                                    lastMealDate={lastMealsData[sectionName]?.date || null}
-                                                    lastMealCount={lastMealsData[sectionName]?.count || 0}
-                                                    isPremium={isPremium}
-                                                    onRemoveEntry={handleRemoveEntry}
-                                                    isRemovable={false} // Snacks always stays
-                                                    onSaveMeal={() => handleSaveMeal(sectionName)}
-                                                />
-                                            </View>
-                                        );
-                                    }
-
-                                    return (
-                                        <MealSection
-                                            key={sectionName}
-                                            title={sectionName}
-                                            entries={entries}
-                                            calories={cals}
-                                            macros={macros}
-                                            onAddFood={() => openAddFoodModal(sectionName)}
-                                            onRepeatLast={availableRepeats[sectionName] ? () => handleRepeatLast(sectionName) : undefined}
-                                            lastMealDate={lastMealsData[sectionName]?.date || null}
-                                            lastMealCount={lastMealsData[sectionName]?.count || 0}
-                                            isPremium={isPremium}
-                                            onRemoveEntry={handleRemoveEntry}
-                                            onDeleteSection={() => handleDeleteMealSection(sectionName)}
-                                            isRemovable={true}
-                                            onSaveMeal={() => handleSaveMeal(sectionName)}
-                                        />
-                                    );
-                                })}
-                            </View>
-
-                            {/* Exercise Section (Also visible in Nutrition for calorie context) */}
-                            <View style={styles.mealsContainer}>
-                                <ExerciseSection
-                                    exercises={dailyLog.exercises || []}
-                                    onAddExercise={() => navigation.navigate('AddExercise', { date: selectedDate })}
-                                    onRemoveExercise={handleRemoveExercise}
-                                />
-                            </View>
-                        </>
-                    ) : (
-                        <WorkoutView
-                            dailyLog={dailyLog}
-                            savedRoutines={savedRoutines}
-                            onAddWorkout={() => navigation.navigate('AddWorkout', { date: selectedDate })}
-                            onRemoveWorkout={handleRemoveWorkout}
-                            onPressWorkout={(id, isRoutine) => {
-                                // Check if it's a routine (either flag or starts with 'hist') or a logged workout
-                                if (isRoutine || id.startsWith('hist')) {
-                                    // Start new from routine
-                                    const routine = savedRoutines.find(r => r.id === id);
-                                    if (routine) {
-                                        navigation.push('WorkoutExecute', {
-                                            date: selectedDate,
-                                            routine: routine
-                                        });
-                                    }
-                                } else {
-                                    // View/Resume existing workout
-                                    navigation.navigate('WorkoutExecute', { date: selectedDate, workoutId: id });
-                                }
-                            }}
-                        />
-                    )}
-                </ScrollView>
-
-                {/* Bottom View Switcher */}
-                <View style={styles.bottomTabSwitcher}>
-                    <TouchableOpacity
-                        style={[styles.tabButton, activeTab === 'nutrition' && styles.tabButtonActive]}
-                        onPress={() => {
-                            setActiveTab('nutrition');
-                            navigation.setParams({ activeTab: 'nutrition' });
-                        }}
-                    >
-                        <Text style={styles.tabIcon}>🥗</Text>
-                        <Text style={[styles.tabLabel, activeTab === 'nutrition' && styles.tabLabelActive]}>
-                            Nutrition
-                        </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={[styles.tabButton, activeTab === 'workout' && styles.tabButtonActive]}
-                        onPress={() => {
-                            setActiveTab('workout');
-                            navigation.setParams({ activeTab: 'workout' });
-                        }}
-                    >
-                        <Text style={styles.tabIcon}>💪</Text>
-                        <Text style={[styles.tabLabel, activeTab === 'workout' && styles.tabLabelActive]}>
-                            Workout
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            </SafeAreaView>
+                </View >
+            </View >
 
 
             {/* Weight Update Modal */}
-            <Modal
+            < Modal
                 visible={showWeightModal}
                 transparent={true}
                 animationType="fade"
@@ -879,9 +882,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => 
                         </View>
                     </View>
                 </KeyboardAvoidingView>
-            </Modal>
-
-        </View>
+            </Modal >
+        </>
     );
 };
 
@@ -1229,15 +1231,14 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.surface,
         borderTopWidth: 1,
         borderTopColor: theme.colors.border,
-        height: 80,
-        paddingBottom: 20,
         ...theme.shadows.medium,
     },
     tabButton: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 10,
+        paddingTop: 16,
+        paddingBottom: 28,
     },
     tabButtonActive: {
         backgroundColor: 'rgba(76, 175, 80, 0.05)', // Subtle primary highlight
